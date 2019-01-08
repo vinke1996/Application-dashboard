@@ -1,89 +1,331 @@
 <template>
   <div id="app">
-    <b-container class="bv-example-row">
+    <b-navbar toggleable="md" type="dark" variant="dark">
+      <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
+      <b-navbar-brand href="#">IOT Application Dashboard</b-navbar-brand>
+    </b-navbar>
+
+    <b-container fluid id="container" class="bv-example-row">
       <b-row>
-          <b-col>
-            <b-card title="Latest Weather Data"
-              img-src="https://picsum.photos/600/300/?image=25"
-              img-alt="Image"
-              img-top
+          <b-col style="max-width:50%">
+            <b-card title="Own API"
               tag="article"
-              style="max-width: 30rem;"
-              class="mb-2">
+              class="mb-2" v-if="weatherData.length > 0">
               <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's content.
+                <i>Last update: </i><b>{{formatDate(weatherData[0].created_at, "DD-MMM-YY HH:mm:ss", false)}}</b><br><br>
+                <b-row>
+                  <b-col>
+                    <b-card title="Temperature"
+                      tag="article"
+                      style="max-width: 30rem;"
+                      class="mb-2" v-if="weatherData.length > 0">
+                      <p class="card-text">
+                        <i>Temperature: </i><b>{{weatherData[0].temperature}}°</b><br>
+                      </p>
+                    </b-card>
+                  </b-col>
+                  <b-col>
+                    <b-card title="Humidity"
+                      tag="article"
+                      style="max-width: 30rem;"
+                      class="mb-2" v-if="weatherData.length > 0">
+                      <p class="card-text">
+                        <i>Humidity: </i><b>{{weatherData[0].humidity}}°</b><br>
+                      </p>
+                    </b-card>
+                  </b-col>
+                </b-row>
               </p>
-              <b-button href="#" variant="primary">Go somewhere</b-button>
             </b-card>
           </b-col>
-          <b-col>
-            <b-card title="Latest weather data"
-              img-src="https://picsum.photos/600/300/?image=25"
-              img-alt="Image"
-              img-top
+
+          <b-col style="max-width:50%">
+            <b-card title="Dark Sky API"
               tag="article"
-              style="max-width: 30rem;"
-              class="mb-2">
+              class="mb-2" v-if="weatherData_darksky_current.time">
               <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's content.
+                <i>Last update: </i><b>{{formatDate(weatherData_darksky_current.time, "DD-MMM-YY HH:mm:ss", true)}}</b><br><br>
+                <b-row>
+                  <b-col>
+                    <b-card title="Temperature"
+                      tag="article"
+                      style="max-width: 30rem;"
+                      class="mb-2">
+                      <p class="card-text">
+                        <i>Temperature: </i><b>{{weatherData_darksky_current.temperature}}°</b><br>
+                      </p>
+                    </b-card>
+                  </b-col>
+                  <b-col>
+                    <b-card title="Humidity"
+                      tag="article"
+                      style="max-width: 30rem;"
+                      class="mb-2">
+                      <p class="card-text">
+                        <i>Humidity: </i><b>{{weatherData_darksky_current.humidity}}°</b><br>
+                      </p>
+                    </b-card>
+                  </b-col>
+                </b-row>
               </p>
-              <b-button href="#" variant="primary">Go somewhere</b-button>
-            </b-card>
-          </b-col>
-          <b-col>
-            <b-card title="Higest Temperature and Humidity"
-              img-src="https://picsum.photos/600/300/?image=25"
-              img-alt="Image"
-              img-top
-              tag="article"
-              style="max-width: 30rem;"
-              class="mb-2">
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's content.
-              </p>
-              <b-button href="#" variant="primary">Go somewhere</b-button>
-            </b-card>
-          </b-col>
-          <b-col>
-            <b-card title="Lowest Temperature and Humidity"
-              img-src="https://picsum.photos/600/300/?image=25"
-              img-alt="Image"
-              img-top
-              tag="article"
-              style="max-width: 30rem;"
-              class="mb-2">
-              <p class="card-text">
-                Some quick example text to build on the card title and make up the bulk of the card's content.
-              </p>
-              <b-button href="#" variant="primary">Go somewhere</b-button>
             </b-card>
           </b-col>
       </b-row>
+      <b-row>
+        <b-col style="max-width:100%">
+          <b-card no-body>
+            <b-tabs pills card>
+              <b-tab title="Temerature" active @click="changeTab('temp')">
+                <b-row>
+                  <b-col style="max-width:100%">
+                    <b-card title="Temperature Chart"
+                      tag="article"
+                      class="mb-2" v-if="tabTemp">
+                      <p class="card-text">
+                        <chart class="chart-wrapper" height="500" :chartData="temperatureData" :chartLabelData="temperatureLabelData"></chart>
+                      </p>
+                    </b-card>
+                  </b-col>
+                </b-row>
+              </b-tab>
+              <b-tab title="Humidity" @click="changeTab('hum')">
+                <b-row>
+                  <b-col style="max-width:100%">
+                    <b-card title="Humidity Chart"
+                      tag="article"
+                      class="mb-2">
+                      <p class="card-text" v-if="tabHum">
+                        <chart class="chart-wrapper" height="500" :chartData="humidityData" :chartLabelData="humidityLabelData"></chart>
+                      </p>
+                    </b-card>
+                  </b-col>
+                </b-row>
+              </b-tab>
+            </b-tabs>
+          </b-card>
+        </b-col>
+      </b-row>
     </b-container>
-    <!-- <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/> -->
   </div>
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import request from '@/utils/request'
+import axios from 'axios'
+import moment,{ min } from 'moment'
+import Chart from './components/Chart'
+import * as R from 'ramda'
 
 export default {
   name: 'app',
   components: {
-    // HelloWorld
+    Chart
   },
   data: function () {
     return {
-      weatherData:[]
+      tabTemp:true,
+      tabHum:false,
+      weatherData:[],
+      weatherData_darksky_current:{},
+      weatherData_darksky:[],
+
+      temperatureData:[],
+      temperatureLabelData:[],
+      humidityData:[],
+      humidityLabelData:[],
     }
   },
   methods: {
     async getData(){
-      this.weatherData = (await request.get('weather_measures')).data
+      //add proxy for api request.
+      var proxy = "https://cors-anywhere.herokuapp.com/"
+      //get data from own api
+      this.weatherData = (await axios.get(proxy+'http://wausa.nl:3003/weather_measures?start_date='+moment().subtract(1, 'days').format("YYYY-MM-DD")+' 00:00:00&end_date='+moment().add(1, 'days').format("YYYY-MM-DD"))).data
+      //get data from darksky from yesterday and today
+      var tmpDarkSky = []
+      tmpDarkSky.push((await axios.get(proxy+'https://api.darksky.net/forecast/22872e40761a9599a97c8852f680e7bd/52.4899663,4.9431226,'+moment().subtract(1, 'days').format("X")+'?lang=nl&units=auto')).data)
+      tmpDarkSky.push((await axios.get(proxy+'https://api.darksky.net/forecast/22872e40761a9599a97c8852f680e7bd/52.4899663,4.9431226,'+moment().format("X")+'?lang=nl&units=auto')).data)
+
+      //add darksky currently to weatherData_darksky_current and add all hourly data to weatherData_darksky
+      this.weatherData_darksky_current = tmpDarkSky[1].currently
+      for (let i = 0; i < tmpDarkSky.length; i++) {
+        for (let j = 0; j < tmpDarkSky[i].hourly.data.length; j++) {
+          this.weatherData_darksky.push(tmpDarkSky[i].hourly.data[j])
+        }
+      }
+
+      this.getTemperatureData();
+      this.getHumidityData();
+    },
+
+    getTemperatureData(){
+      //add data from darksy to temperature array
+      var dataDarkSkyTemperature = [];
+      for (let i = 0 ; i < this.weatherData_darksky.length; i++) {
+        dataDarkSkyTemperature.push(this.weatherData_darksky[i].temperature)
+        this.temperatureLabelData.push(this.formatDate(this.weatherData_darksky[i].time, 'DD-MM-YYYY HH:mm', true))
+      }
+
+      //add data from own api to temperature array
+      var dataOwnTemperature = [];
+      var tmpHour = 0
+      for (let i = 0 ; i < this.weatherData.length; i++) {
+        var day = this.formatDate(this.weatherData[i].created_at, 'DD', false)
+        var hour = this.formatDate(this.weatherData[i].created_at, 'HH', false)
+        var minute = this.formatDate(this.weatherData[i].created_at, 'mm', false)
+
+        if((day == this.formatDate(moment(), 'DD', false) || day == this.formatDate(moment().subtract(1, 'days'), 'DD', false)) && minute === "00"){
+          if(tmpHour != 0){
+            if((tmpHour - hour) != 1){
+              for (let i = 1; i < (tmpHour - hour); i++) {
+                dataOwnTemperature.push(NaN)
+              }
+            }
+          }
+          dataOwnTemperature.push(this.weatherData[i].temperature)
+          tmpHour = hour
+        }
+      }
+
+      dataOwnTemperature = R.reverse(dataOwnTemperature);
+
+      this.temperatureData.push(
+        {
+          label:"Dark Sky API",
+          backgroundColor: 'transparent',
+          borderColor: "blue",
+          pointHoverBackgroundColor: '#fff',
+          borderWidth: 2,
+          data: dataDarkSkyTemperature
+        }
+      )
+
+      this.temperatureData.push(
+        {
+          label:"Own API",
+          backgroundColor: 'transparent',
+          borderColor: "red",
+          pointHoverBackgroundColor: '#fff',
+          borderWidth: 2,
+          data: dataOwnTemperature,
+        }
+      )
+    },
+
+    getHumidityData(){
+      //add data from darksy to humidity array
+      var dataDarkSkyHumidity = [];
+      for (let i = 0 ; i < this.weatherData_darksky.length; i++) {
+        dataDarkSkyHumidity.push(this.weatherData_darksky[i].humidity)
+        this.humidityLabelData.push(this.formatDate(this.weatherData_darksky[i].time, 'DD-MM-YYYY HH:mm', true))
+      }
+
+      //add data from own api to humidity array
+      var dataOwnHumidity = [];
+      var tmpHour = 0
+      for (let i = 0 ; i < this.weatherData.length; i++) {
+        var day = this.formatDate(this.weatherData[i].created_at, 'DD', false)
+        var hour = this.formatDate(this.weatherData[i].created_at, 'HH', false)
+        var minute = this.formatDate(this.weatherData[i].created_at, 'mm', false)
+
+        if((day == this.formatDate(moment(), 'DD', false) || day == this.formatDate(moment().subtract(1, 'days'), 'DD', false)) && minute === "00"){
+          if(tmpHour != 0){
+            if((tmpHour - hour) != 1){
+              for (let i = 1; i < (tmpHour - hour); i++) {
+                dataOwnHumidity.push(NaN)
+              }
+            }
+          }
+          dataOwnHumidity.push(this.weatherData[i].humidity)
+          tmpHour = hour
+        }
+      }
+
+      dataOwnHumidity = R.reverse(dataOwnHumidity);
+
+      this.humidityData.push(
+        {
+          label:"Dark Sky API",
+          backgroundColor: 'transparent',
+          borderColor: "blue",
+          pointHoverBackgroundColor: '#fff',
+          borderWidth: 2,
+          data: dataDarkSkyHumidity
+        }
+      )
+
+      this.humidityData.push(
+        {
+          label:"Own API",
+          backgroundColor: 'transparent',
+          borderColor: "red",
+          pointHoverBackgroundColor: '#fff',
+          borderWidth: 2,
+          data: dataOwnHumidity,
+        }
+      )
+    },
+
+    changeTab(tab){
+      if(tab == "temp"){
+        this.tabTemp = true
+        this.tabHum = false
+      }
+      if(tab == "hum"){
+        this.tabTemp = false
+        this.tabHum = true
+      }
+    },
+
+    formatDate(time, format, unix){
+      if(unix){
+        return moment.unix(time).format(format)
+      } else{
+        return moment(time).format(format)
+      }
+    },
+
+    getHighestTempValue(){
+      var highestTemp = this.weatherData[0].temperature;
+      for (let i = 1; i < this.weatherData.length; i++) {
+        if(highestTemp < this.weatherData[i].temperature){
+          highestTemp = this.weatherData[i].temperature
+        }
+      }
+
+      return highestTemp
+    },
+    getHighestHumValue(){
+      var highestHum = this.weatherData[0].humidity;
+      for (let i = 1; i < this.weatherData.length; i++) {
+        if(highestHum < this.weatherData[i].humidity){
+          highestHum = this.weatherData[i].humidity
+        }
+      }
+
+      return highestHum
+    },
+    getLowestTempValue(){
+      var lowestTemp = this.weatherData[0].temperature;
+      for (let i = 1; i < this.weatherData.length; i++) {
+        if(lowestTemp > this.weatherData[i].temperature){
+          lowestTemp = this.weatherData[i].temperature
+        }
+      }
+
+      return lowestTemp
+    },
+    getLowestHumValue(){
+      var lowestHum = this.weatherData[0].humidity;
+      for (let i = 1; i < this.weatherData.length; i++) {
+        if(lowestHum > this.weatherData[i].humidity){
+          lowestHum = this.weatherData[i].humidity
+        }
+      }
+
+      return lowestHum
     }
 
   },
@@ -100,6 +342,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+}
+#container {
+  margin-top: 10px;
 }
 </style>
