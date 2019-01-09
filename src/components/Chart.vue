@@ -61,7 +61,6 @@ export default {
   },
   watch: {
     chartData: function() {
-      console.log('update etc')
       this.renderLineChart();
     }
   }

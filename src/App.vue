@@ -112,7 +112,6 @@
 <script>
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import request from '@/utils/request'
 import axios from 'axios'
 import moment,{ min } from 'moment'
 import Chart from './components/Chart'
@@ -138,6 +137,16 @@ export default {
     }
   },
   methods: {
+    clearData(){
+      this.weatherData = []
+      this.weatherData_darksky_current = {}
+      this.weatherData_darksky= []
+
+      this.temperatureData = []
+      this.temperatureLabelData = []
+      this.humidityData = []
+      this.humidityLabelData = []
+    },
     async getData(){
       //add proxy for api request.
       var proxy = "https://cors-anywhere.herokuapp.com/"
@@ -331,6 +340,10 @@ export default {
   },
   async mounted () {
     this.getData()
+    setInterval(() => {
+      this.clearData()
+			this.getData()
+    }, 1000 * 60 * 5)
   }
 }
 </script>
