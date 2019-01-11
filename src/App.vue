@@ -116,6 +116,7 @@ import axios from 'axios'
 import moment,{ min } from 'moment'
 import Chart from './components/Chart'
 import * as R from 'ramda'
+import config from '../config'
 
 export default {
   name: 'app',
@@ -148,14 +149,12 @@ export default {
       this.humidityLabelData = []
     },
     async getData(){
-      //add proxy for api request.
-      var proxy = "https://cors-anywhere.herokuapp.com/"
       //get data from own api
-      this.weatherData = (await axios.get(proxy+'http://nielsvinke.nl:3003/weather_measures?start_date='+moment().subtract(1, 'days').format("YYYY-MM-DD")+' 00:00:00&end_date='+moment().add(1, 'days').format("YYYY-MM-DD"))).data
+      this.weatherData = (await axios.get(config.PROXY+config.OWN_API+':'+config.OWN_API_PORT+'/weather_measures?start_date='+moment().subtract(1, 'days').format("YYYY-MM-DD")+' 00:00:00&end_date='+moment().add(1, 'days').format("YYYY-MM-DD"))).data
       //get data from darksky from yesterday and today
       var tmpDarkSky = []
-      tmpDarkSky.push((await axios.get(proxy+'https://api.darksky.net/forecast/22872e40761a9599a97c8852f680e7bd/52.4899663,4.9431226,'+moment().subtract(1, 'days').format("X")+'?lang=nl&units=auto')).data)
-      tmpDarkSky.push((await axios.get(proxy+'https://api.darksky.net/forecast/22872e40761a9599a97c8852f680e7bd/52.4899663,4.9431226,'+moment().format("X")+'?lang=nl&units=auto')).data)
+      tmpDarkSky.push((await axios.get(config.PROXY+config.EXTERNAL_API+'/forecast/'+config.EXTERNAL_API_KEY+'/52.4899663,4.9431226,'+moment().subtract(1, 'days').format("X")+'?lang=nl&units=auto')).data)
+      tmpDarkSky.push((await axios.get(config.PROXY+config.EXTERNAL_API+'/forecast/'+config.EXTERNAL_API_KEY+'/52.4899663,4.9431226,'+moment().format("X")+'?lang=nl&units=auto')).data)
 
       //add darksky currently to weatherData_darksky_current and add all hourly data to weatherData_darksky
       this.weatherData_darksky_current = tmpDarkSky[1].currently
