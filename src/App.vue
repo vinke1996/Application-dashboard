@@ -151,7 +151,7 @@ export default {
       //add proxy for api request.
       var proxy = "https://cors-anywhere.herokuapp.com/"
       //get data from own api
-      this.weatherData = (await axios.get(proxy+'http://wausa.nl:3003/weather_measures?start_date='+moment().subtract(1, 'days').format("YYYY-MM-DD")+' 00:00:00&end_date='+moment().add(1, 'days').format("YYYY-MM-DD"))).data
+      this.weatherData = (await axios.get(proxy+'http://nielsvinke.nl:3003/weather_measures?start_date='+moment().subtract(1, 'days').format("YYYY-MM-DD")+' 00:00:00&end_date='+moment().add(1, 'days').format("YYYY-MM-DD"))).data
       //get data from darksky from yesterday and today
       var tmpDarkSky = []
       tmpDarkSky.push((await axios.get(proxy+'https://api.darksky.net/forecast/22872e40761a9599a97c8852f680e7bd/52.4899663,4.9431226,'+moment().subtract(1, 'days').format("X")+'?lang=nl&units=auto')).data)
